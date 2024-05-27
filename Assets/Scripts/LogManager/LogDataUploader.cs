@@ -20,6 +20,7 @@ public class LogDataUploader : MonoBehaviour
     void Start()
     {
         datalogFolder = Path.Combine(Application.persistentDataPath, outputFolder);
+        DataUploaderUtils.CheckIfDirectoryExists(datalogFolder);
         outputPath = DataUploaderUtils.EnsureCSVFilesExist(datalogFolder, "data_logs.csv");
         backupPath = DataUploaderUtils.EnsureCSVFilesExist(datalogFolder, "data_logs_backup.csv");
         StartCoroutine(Worker());
