@@ -23,7 +23,7 @@ public class LogUtil : MonoBehaviour
         {
             using (StreamWriter writer = new StreamWriter(logFilePath))
             {
-                writer.WriteLine("timePlayed,status");
+                writer.WriteLine("timePlayed,status,project,additional");
             }
         }
 

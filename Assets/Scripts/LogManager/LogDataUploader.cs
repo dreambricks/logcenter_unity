@@ -41,8 +41,10 @@ public class LogDataUploader : MonoBehaviour
 
             if (File.Exists(outputPath))
             {
-                // Lê todas as linhas do arquivo CSV, excluindo o cabeçalho
-                string[] lines = File.ReadAllLines(outputPath).Skip(1).ToArray();
+                // Lê todas as linhas do arquivo CSV
+                string[] allLines = File.ReadAllLines(outputPath);
+                string header = allLines[0]; // O cabeçalho é a primeira linha
+                string[] lines = allLines.Skip(1).ToArray(); // Linhas de dados excluindo o cabeçalho
 
                 // Verifica se há linhas de dados no arquivo CSV
                 if (lines.Length == 0)
@@ -51,24 +53,34 @@ public class LogDataUploader : MonoBehaviour
                     continue;
                 }
 
+                List<string> updatedLines = new List<string>(lines);
 
-                for (int i = 0; i < lines.Length; i++)
+                for (int i = 0; i < updatedLines.Count; i++)
                 {
-                    string line = lines[i];
+                    string line = updatedLines[i];
 
-                    Debug.Log(string.Format("processing line '{0}' de '{1}' ", i + 1, lines.Length));
+                    Debug.Log(string.Format("processing line '{0}' de '{1}' ", i + 1, updatedLines.Count));
 
                     yield return StartCoroutine(SendData(line));
 
                     File.AppendAllText(backupPath, line + "\n");
 
                     // Remova a linha do arquivo original
-                    List<string> updatedLines = new List<string>(lines);
                     updatedLines.RemoveAt(i);
-                    File.WriteAllLines(outputPath, updatedLines.ToArray());
 
                     // Reduza o valor de i para lidar com a remoção da linha
                     i--;
+                }
+
+                // Escreva as linhas restantes de volta no arquivo CSV com o cabeçalho
+                if (updatedLines.Count > 0)
+                {
+                    File.WriteAllLines(outputPath, new[] { header }.Concat(updatedLines).ToArray());
+                }
+                else
+                {
+                    // Se não houver linhas restantes, escreva apenas o cabeçalho
+                    File.WriteAllLines(outputPath, new[] { header });
                 }
             }
         }
